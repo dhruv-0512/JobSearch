@@ -1,0 +1,12 @@
+{
+  "name": "arnifi-job-portal",
+  "version": "1.0.0",
+  "description": "Arnifi Job Portal - Full Stack Application",
+  "scripts": {
+    "install:all": "cd backend && npm install && cd ../frontend && npm install",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "seed": "cd backend && node seed.js",
+    "start": "cd backend && npm start"
+  }
+}
