@@ -1,4 +1,4 @@
-# Arnifi Job Portal 🚀
+# JobSearch 🚀
 
 A full-stack Job Application Portal built with **React** (Vite), **Redux Toolkit**, **React Router**, and **Node.js/Express/MongoDB**.
 
