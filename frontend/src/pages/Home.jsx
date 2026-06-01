@@ -1,6 +1,15 @@
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { HiOutlineSparkles, HiOutlineShieldCheck, HiOutlineLightningBolt, HiOutlineGlobe, HiOutlineUsers, HiOutlineChartBar } from 'react-icons/hi';
+import {
+  PiArrowRight,
+  PiChartLineUp,
+  PiGlobeHemisphereWest,
+  PiHandshake,
+  PiLightning,
+  PiShieldCheck,
+  PiSparkle,
+  PiUsersThree,
+} from 'react-icons/pi';
 
 function Home() {
   const { user } = useSelector((state) => state.auth);
@@ -11,7 +20,7 @@ function Home() {
       <section className="hero">
         <div className="container">
           <span className="hero-tag">
-            <HiOutlineSparkles /> India's Fastest Growing Job Portal
+            <PiSparkle /> India's Fastest Growing Job Portal
           </span>
           <h1 className="hero-title">
             Find Your Dream <span className="highlight">Career</span><br />
@@ -23,7 +32,7 @@ function Home() {
           </p>
           <div className="hero-actions">
             <Link to="/jobs" className="btn btn-primary btn-lg">
-              Browse Jobs →
+              Browse Jobs <PiArrowRight />
             </Link>
             {!user && (
               <Link to="/signup" className="btn btn-secondary btn-lg">
@@ -41,71 +50,58 @@ function Home() {
 
       {/* Stats */}
       <section className="container" style={{ paddingBottom: '40px' }}>
-        <div className="stats-grid">
-          <div className="stat-card slide-up">
-            <div className="stat-number">10K+</div>
-            <div className="stat-label">Active Jobs</div>
-          </div>
-          <div className="stat-card slide-up" style={{ animationDelay: '0.1s' }}>
-            <div className="stat-number">50K+</div>
-            <div className="stat-label">Candidates</div>
-          </div>
-          <div className="stat-card slide-up" style={{ animationDelay: '0.2s' }}>
-            <div className="stat-number">5K+</div>
-            <div className="stat-label">Companies</div>
-          </div>
-          <div className="stat-card slide-up" style={{ animationDelay: '0.3s' }}>
-            <div className="stat-number">95%</div>
-            <div className="stat-label">Success Rate</div>
-          </div>
+        <div className="proof-strip slide-up">
+          <span><PiShieldCheck /> Verified employers</span>
+          <span><PiGlobeHemisphereWest /> Remote and on-site roles</span>
+          <span><PiHandshake /> Candidate-first applications</span>
         </div>
       </section>
 
       {/* Features */}
       <section className="features">
         <div className="container">
-          <h2 style={{ fontSize: '2rem', fontWeight: 800, textAlign: 'center', marginBottom: '40px', letterSpacing: '-0.03em' }}>
+          <h2 style={{ fontSize: '2rem', fontWeight: 800, textAlign: 'center', marginBottom: '40px', letterSpacing: 0 }}>
             Why Choose <span style={{ color: 'var(--accent)' }}>JobSearch</span>?
           </h2>
           <div className="features-grid">
             <div className="feature-card slide-up">
               <div className="feature-icon">
-                <HiOutlineLightningBolt />
+                <PiLightning />
               </div>
               <h3>Lightning Fast</h3>
               <p>Apply to jobs in seconds with smart one-click applications and instant notifications.</p>
             </div>
             <div className="feature-card slide-up" style={{ animationDelay: '0.1s' }}>
               <div className="feature-icon">
-                <HiOutlineShieldCheck />
+                <PiShieldCheck />
               </div>
               <h3>Verified Companies</h3>
               <p>All employers are verified to ensure you connect with legitimate opportunities.</p>
             </div>
             <div className="feature-card slide-up" style={{ animationDelay: '0.2s' }}>
               <div className="feature-icon">
-                <HiOutlineGlobe />
+                <PiGlobeHemisphereWest />
               </div>
               <h3>Remote & Global</h3>
               <p>Access remote opportunities from companies worldwide. Work from anywhere.</p>
             </div>
             <div className="feature-card slide-up" style={{ animationDelay: '0.3s' }}>
               <div className="feature-icon">
-                <HiOutlineUsers />
+                <PiUsersThree />
               </div>
               <h3>Smart Matching</h3>
               <p>Our AI matches your skills with the perfect job opportunities automatically.</p>
             </div>
             <div className="feature-card slide-up" style={{ animationDelay: '0.4s' }}>
               <div className="feature-icon">
-                <HiOutlineChartBar />
+                <PiChartLineUp />
               </div>
               <h3>Track Progress</h3>
               <p>Real-time application tracking so you always know where you stand.</p>
             </div>
             <div className="feature-card slide-up" style={{ animationDelay: '0.5s' }}>
               <div className="feature-icon">
-                <HiOutlineSparkles />
+                <PiSparkle />
               </div>
               <h3>Premium Support</h3>
               <p>Dedicated support team to help you at every step of your career journey.</p>
@@ -116,7 +112,7 @@ function Home() {
 
       {/* CTA */}
       <section className="container" style={{ padding: '60px 24px', textAlign: 'center' }}>
-        <div className="card" style={{ padding: '60px 40px', maxWidth: '700px', margin: '0 auto', borderColor: 'var(--border-accent)' }}>
+        <div className="cta-panel" style={{ padding: '56px 40px', maxWidth: '760px', margin: '0 auto' }}>
           <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '12px' }}>
             Ready to Get Started?
           </h2>
@@ -126,11 +122,11 @@ function Home() {
           <div className="hero-actions">
             {!user ? (
               <>
-                <Link to="/signup" className="btn btn-primary btn-lg">Get Started Free →</Link>
+                <Link to="/signup" className="btn btn-primary btn-lg">Get Started Free <PiArrowRight /></Link>
                 <Link to="/login" className="btn btn-secondary btn-lg">Sign In</Link>
               </>
             ) : (
-              <Link to="/jobs" className="btn btn-primary btn-lg">Explore Jobs →</Link>
+              <Link to="/jobs" className="btn btn-primary btn-lg">Explore Jobs <PiArrowRight /></Link>
             )}
           </div>
         </div>

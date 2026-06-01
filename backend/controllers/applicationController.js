@@ -2,7 +2,7 @@ const path = require('path');
 const Application = require('../models/Application');
 const Job = require('../models/Job');
 const { extractTextFromPdf, matchJobSkills } = require('../utils/resumeMatcher');
-const { getAtsScore } = require('../services/atsService');
+const { evaluateResume } = require('../services/hiringAgentService');
 
 const allowedStatuses = [
   'applied',
@@ -45,9 +45,10 @@ exports.applyForJob = async (req, res) => {
     };
     let resumeText = '';
     let matchResult = { matchedSkills: [], matchScore: null };
-    let atsResult = null;
+    let resumePdfPath = null;
 
     if (req.file) {
+      resumePdfPath = req.file.path;
       resumeMeta = {
         url: `/uploads/resumes/${req.file.filename}`,
         originalName: req.file.originalname,
@@ -58,7 +59,6 @@ exports.applyForJob = async (req, res) => {
       try {
         resumeText = await extractTextFromPdf(req.file.path);
         matchResult = matchJobSkills(job.skills || [], resumeText);
-        atsResult = await getAtsScore({ resumeText, job });
       } catch (parseError) {
         console.error('Resume parse error:', parseError.message);
       }
@@ -78,9 +78,8 @@ exports.applyForJob = async (req, res) => {
       resume: resumeMeta,
       matchedSkills: matchResult.matchedSkills,
       matchScore: matchResult.matchScore,
-      atsScore: atsResult?.score ?? null,
-      atsProvider: atsResult?.provider || '',
       status: 'applied',
+      agentEvaluation: { status: resumePdfPath ? 'pending' : 'skipped' },
       statusHistory: [
         {
           status: 'applied',
@@ -95,7 +94,50 @@ exports.applyForJob = async (req, res) => {
       { path: 'candidate', select: 'name email' },
     ]);
 
+    // Respond immediately — don't wait for AI evaluation
     res.status(201).json(application);
+
+    // Fire-and-forget: run hiring-agent evaluation in the background
+    if (resumePdfPath) {
+      const githubToken = process.env.GITHUB_TOKEN || null;
+      evaluateResume(resumePdfPath, githubToken)
+        .then(async (result) => {
+          if (!result) {
+            await Application.findByIdAndUpdate(application._id, {
+              'agentEvaluation.status': 'failed',
+              'agentEvaluation.errorMessage': 'Hiring agent returned no result',
+            });
+            return;
+          }
+
+          const eval_ = result.evaluation || {};
+          const scores = eval_.scores || null;
+          const bonusPoints = eval_.bonus_points || null;
+          const deductions = eval_.deductions || null;
+
+          await Application.findByIdAndUpdate(application._id, {
+            'agentEvaluation.status': 'completed',
+            'agentEvaluation.completedAt': new Date(),
+            'agentEvaluation.resumeData': result.resume_data || null,
+            'agentEvaluation.githubData': result.github_data || null,
+            'agentEvaluation.scores': scores,
+            'agentEvaluation.bonusPoints': bonusPoints,
+            'agentEvaluation.deductions': deductions,
+            'agentEvaluation.overallScore': result.overall_score ?? null,
+            'agentEvaluation.maxScore': result.max_score ?? null,
+            'agentEvaluation.keyStrengths': eval_.key_strengths || [],
+            'agentEvaluation.areasForImprovement': eval_.areas_for_improvement || [],
+          });
+          console.log(`[hiringAgent] ✅ Evaluation saved for application ${application._id}`);
+        })
+        .catch(async (err) => {
+          console.error('[hiringAgent] Background evaluation error:', err.message);
+          await Application.findByIdAndUpdate(application._id, {
+            'agentEvaluation.status': 'failed',
+            'agentEvaluation.errorMessage': err.message,
+          }).catch(() => {});
+        });
+    }
   } catch (error) {
     console.error('Apply error:', error);
     if (error.code === 11000) {

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { fetchApplications, confirmInterviewSlot } from '../features/applications/applicationSlice';
+import AgentEvaluationPanel from '../components/AgentEvaluationPanel';
 
 function Applications() {
   const dispatch = useDispatch();
@@ -11,6 +12,8 @@ function Applications() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [selectedSlotIndex, setSelectedSlotIndex] = useState(0);
+  const [showEvalModal, setShowEvalModal] = useState(false);
+  const [evalApplication, setEvalApplication] = useState(null);
 
   useEffect(() => {
     dispatch(fetchApplications());
@@ -61,6 +64,31 @@ function Applications() {
     }));
     setShowConfirmModal(false);
     setSelectedApplication(null);
+  };
+
+  const openEvalModal = (app) => {
+    setEvalApplication(app);
+    setShowEvalModal(true);
+  };
+
+  const getEvalStatusBadge = (agentEvaluation) => {
+    if (!agentEvaluation) return null;
+    const { status } = agentEvaluation;
+    if (status === 'pending') {
+      return <span className="agent-status-badge agent-status-pending">⏳ Analysing…</span>;
+    }
+    if (status === 'completed') {
+      const score = agentEvaluation.overallScore;
+      return (
+        <span className="agent-status-badge agent-status-done">
+          🤖 {score != null ? `${score.toFixed(0)} pts` : 'View AI Analysis'}
+        </span>
+      );
+    }
+    if (status === 'failed') {
+      return <span className="agent-status-badge agent-status-failed">⚠️ Analysis failed</span>;
+    }
+    return null;
   };
 
   return (
@@ -137,6 +165,7 @@ function Applications() {
                   {user?.role === 'employer' && <th>Candidate</th>}
                   <th>Applied</th>
                   <th>Status</th>
+                  <th>AI Analysis</th>
                   <th>Cover Letter</th>
                 </tr>
               </thead>
@@ -189,6 +218,20 @@ function Applications() {
                         <div className="status-hint">Interview confirmed</div>
                       )}
                     </td>
+                    {/* AI Analysis Column */}
+                    <td>
+                      {app.agentEvaluation?.status === 'completed' ? (
+                        <button
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => openEvalModal(app)}
+                          style={{ whiteSpace: 'nowrap' }}
+                        >
+                          {getEvalStatusBadge(app.agentEvaluation)}
+                        </button>
+                      ) : (
+                        getEvalStatusBadge(app.agentEvaluation) || <span style={{ color: 'var(--text-muted)' }}>—</span>
+                      )}
+                    </td>
                     <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {app.coverLetter || '—'}
                     </td>
@@ -201,6 +244,7 @@ function Applications() {
         </div>
       </div>
 
+      {/* Confirm Interview Modal */}
       {showConfirmModal && selectedApplication && (
         <div className="modal-overlay" onClick={() => setShowConfirmModal(false)}>
           <div className="modal slide-up" onClick={(e) => e.stopPropagation()}>
@@ -236,6 +280,26 @@ function Applications() {
                 Cancel
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* AI Evaluation Modal */}
+      {showEvalModal && evalApplication && (
+        <div className="modal-overlay" onClick={() => setShowEvalModal(false)}>
+          <div
+            className="modal slide-up"
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: '860px', width: '95vw', maxHeight: '90vh', overflowY: 'auto' }}
+          >
+            <div className="modal-header">
+              <h2>AI Evaluation</h2>
+              <button className="modal-close" onClick={() => setShowEvalModal(false)}>✕</button>
+            </div>
+            <AgentEvaluationPanel
+              evaluation={evalApplication.agentEvaluation}
+              candidateName={evalApplication.candidate?.name || evalApplication.job?.title}
+            />
           </div>
         </div>
       )}

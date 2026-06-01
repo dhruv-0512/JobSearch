@@ -1,7 +1,7 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { logout } from '../features/auth/authSlice';
-import { HiOutlineBriefcase, HiOutlineDocumentText, HiOutlineViewGrid, HiOutlineLogout, HiOutlineLogin, HiOutlineUserAdd } from 'react-icons/hi';
+import { PiBriefcase, PiFileText, PiSignIn, PiSignOut, PiSquaresFour, PiUserPlus } from 'react-icons/pi';
 
 function Navbar() {
   const dispatch = useDispatch();
@@ -20,23 +20,27 @@ function Navbar() {
     <nav className="navbar">
       <div className="container">
         <Link to="/" className="navbar-brand">
-          <span className="brand-icon">JS</span>
+          <span className="brand-icon"><PiBriefcase /></span>
           JobSearch
         </Link>
 
         <div className="navbar-links">
-          <Link to="/jobs" className={isActive('/jobs')}>
-            <HiOutlineBriefcase /> Jobs
-          </Link>
+          {(!user || user.role !== 'employer') && (
+            <Link to="/jobs" className={isActive('/jobs')}>
+              <PiBriefcase /> Jobs
+            </Link>
+          )}
 
           {user && (
             <>
               <Link to="/dashboard" className={isActive('/dashboard')}>
-                <HiOutlineViewGrid /> Dashboard
+                <PiSquaresFour /> Dashboard
               </Link>
-              <Link to="/applications" className={isActive('/applications')}>
-                <HiOutlineDocumentText /> Applications
-              </Link>
+              {user.role !== 'employer' && (
+                <Link to="/applications" className={isActive('/applications')}>
+                  <PiFileText /> Applications
+                </Link>
+              )}
             </>
           )}
 
@@ -48,16 +52,16 @@ function Navbar() {
               </div>
               <div className="nav-avatar">{user.name.charAt(0).toUpperCase()}</div>
               <button onClick={handleLogout} className="nav-link" title="Logout">
-                <HiOutlineLogout />
+                <PiSignOut />
               </button>
             </div>
           ) : (
             <>
               <Link to="/login" className={isActive('/login')}>
-                <HiOutlineLogin /> Login
+                <PiSignIn /> Login
               </Link>
               <Link to="/signup" className="btn btn-primary btn-sm">
-                <HiOutlineUserAdd /> Sign Up
+                <PiUserPlus /> Sign Up
               </Link>
             </>
           )}

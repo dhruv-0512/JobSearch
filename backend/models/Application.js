@@ -110,6 +110,28 @@ const applicationSchema = new mongoose.Schema({
     type: String,
     default: '',
   },
+  // Full AI evaluation from the hiring-agent service
+  agentEvaluation: {
+    status: {
+      type: String,
+      enum: ['pending', 'completed', 'failed', 'skipped'],
+      default: 'pending',
+    },
+    completedAt: { type: Date, default: null },
+    // Raw parsed resume sections
+    resumeData: { type: mongoose.Schema.Types.Mixed, default: null },
+    // GitHub profile + top projects
+    githubData: { type: mongoose.Schema.Types.Mixed, default: null },
+    // Category scores + evidence
+    scores: { type: mongoose.Schema.Types.Mixed, default: null },
+    bonusPoints: { type: mongoose.Schema.Types.Mixed, default: null },
+    deductions: { type: mongoose.Schema.Types.Mixed, default: null },
+    overallScore: { type: Number, default: null },
+    maxScore: { type: Number, default: null },
+    keyStrengths: { type: [String], default: [] },
+    areasForImprovement: { type: [String], default: [] },
+    errorMessage: { type: String, default: null },
+  },
   status: {
     type: String,
     enum: [

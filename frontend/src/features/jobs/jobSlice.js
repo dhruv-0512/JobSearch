@@ -144,6 +144,7 @@ const jobSlice = createSlice({
     isScoring: false,
     atsScore: null,
     atsError: null,
+    atsEvaluationResult: null,
   },
   reducers: {
     clearCurrentJob: (state) => {
@@ -159,6 +160,7 @@ const jobSlice = createSlice({
     clearAtsScore: (state) => {
       state.atsScore = null;
       state.atsError = null;
+      state.atsEvaluationResult = null;
     },
   },
   extraReducers: (builder) => {
@@ -239,6 +241,7 @@ const jobSlice = createSlice({
       .addCase(scoreAtsFromResume.fulfilled, (state, action) => {
         state.isScoring = false;
         state.atsScore = action.payload.score;
+        state.atsEvaluationResult = action.payload;
       })
       .addCase(scoreAtsFromResume.rejected, (state, action) => {
         state.isScoring = false;

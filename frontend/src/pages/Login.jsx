@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { login, clearError } from '../features/auth/authSlice';
-import { HiOutlineMail, HiOutlineLockClosed } from 'react-icons/hi';
+import { PiEnvelopeSimple, PiLockKey, PiWarningCircle } from 'react-icons/pi';
 
 function Login() {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -28,12 +28,12 @@ function Login() {
           <p>Sign in to your JobSearch account</p>
         </div>
 
-        {error && <div className="alert alert-error">⚠ {error}</div>}
+        {error && <div className="alert alert-error"><PiWarningCircle /> {error}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label className="form-label">
-              <HiOutlineMail style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />
+              <PiEnvelopeSimple style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />
               Email Address
             </label>
             <input
@@ -48,7 +48,7 @@ function Login() {
 
           <div className="form-group">
             <label className="form-label">
-              <HiOutlineLockClosed style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />
+              <PiLockKey style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />
               Password
             </label>
             <input
