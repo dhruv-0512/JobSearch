@@ -1,18 +1,11 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const dotenv = require('dotenv');
-
-dotenv.config();
-
 const User = require('./models/User');
 const Job = require('./models/Job');
 const Application = require('./models/Application');
 
 const seedData = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
-    console.log('Connected to MongoDB');
-
     // Clear existing data
     await User.deleteMany({});
     await Job.deleteMany({});
@@ -162,12 +155,19 @@ const seedData = async () => {
     console.log('Employer: rahul@infosys.com / password123');
     console.log('Candidate: candidate@jobsearch.in / password123');
     console.log('───────────────────────────────\n');
-
-    process.exit(0);
   } catch (error) {
     console.error('Seed error:', error);
-    process.exit(1);
   }
 };
 
-seedData();
+// Auto-run when called directly via CLI
+if (require.main === module) {
+  const dotenv = require('dotenv');
+  dotenv.config();
+  mongoose.connect(process.env.MONGODB_URI)
+    .then(() => seedData())
+    .then(() => process.exit(0))
+    .catch((e) => { console.error(e); process.exit(1); });
+}
+
+module.exports = seedData;
