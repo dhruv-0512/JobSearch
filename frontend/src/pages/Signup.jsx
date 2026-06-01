@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { signup, clearError } from '../features/auth/authSlice';
-import { HiOutlineUser, HiOutlineMail, HiOutlineLockClosed } from 'react-icons/hi';
+import { PiBuildings, PiEnvelopeSimple, PiLockKey, PiTarget, PiUser, PiWarningCircle } from 'react-icons/pi';
 
 function Signup() {
   const [formData, setFormData] = useState({
@@ -34,7 +34,7 @@ function Signup() {
           <p>Join JobSearch and start your journey</p>
         </div>
 
-        {error && <div className="alert alert-error">⚠ {error}</div>}
+        {error && <div className="alert alert-error"><PiWarningCircle /> {error}</div>}
 
         <form onSubmit={handleSubmit}>
           {/* Role Selector */}
@@ -45,7 +45,7 @@ function Signup() {
                 className={`role-option ${formData.role === 'candidate' ? 'selected' : ''}`}
                 onClick={() => setFormData({ ...formData, role: 'candidate' })}
               >
-                <div className="role-option-icon">🎯</div>
+                <div className="role-option-icon"><PiTarget /></div>
                 <div className="role-option-title">Find a Job</div>
                 <div className="role-option-desc">Browse & apply for jobs</div>
               </div>
@@ -53,7 +53,7 @@ function Signup() {
                 className={`role-option ${formData.role === 'employer' ? 'selected' : ''}`}
                 onClick={() => setFormData({ ...formData, role: 'employer' })}
               >
-                <div className="role-option-icon">🏢</div>
+                <div className="role-option-icon"><PiBuildings /></div>
                 <div className="role-option-title">Hire Talent</div>
                 <div className="role-option-desc">Post jobs & find candidates</div>
               </div>
@@ -62,7 +62,7 @@ function Signup() {
 
           <div className="form-group">
             <label className="form-label">
-              <HiOutlineUser style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />
+              <PiUser style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />
               Full Name
             </label>
             <input
@@ -77,7 +77,7 @@ function Signup() {
 
           <div className="form-group">
             <label className="form-label">
-              <HiOutlineMail style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />
+              <PiEnvelopeSimple style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />
               Email Address
             </label>
             <input
@@ -92,7 +92,7 @@ function Signup() {
 
           <div className="form-group">
             <label className="form-label">
-              <HiOutlineLockClosed style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />
+              <PiLockKey style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />
               Password
             </label>
             <input

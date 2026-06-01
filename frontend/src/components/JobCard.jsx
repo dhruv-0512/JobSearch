@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { HiOutlineLocationMarker, HiOutlineCurrencyDollar, HiOutlineClock, HiOutlineOfficeBuilding } from 'react-icons/hi';
+import { PiArrowRight, PiBuildings, PiClock, PiMapPin } from 'react-icons/pi';
 
 function JobCard({ job, matchScore, matchedSkills }) {
   const timeAgo = (date) => {
@@ -30,13 +30,13 @@ function JobCard({ job, matchScore, matchedSkills }) {
 
       <div className="job-card-meta">
         <span className="job-card-meta-item">
-          <HiOutlineLocationMarker /> {job.location}
+          <PiMapPin /> {job.location}
         </span>
         <span className="job-card-meta-item">
-          <HiOutlineOfficeBuilding /> {job.company}
+          <PiBuildings /> {job.company}
         </span>
         <span className="job-card-meta-item">
-          <HiOutlineClock /> {timeAgo(job.createdAt)}
+          <PiClock /> {timeAgo(job.createdAt)}
         </span>
       </div>
 
@@ -66,7 +66,7 @@ function JobCard({ job, matchScore, matchedSkills }) {
         <span className="job-card-salary">
           ₹ {job.salary}
         </span>
-        <span className="btn btn-outline btn-sm">View Details →</span>
+        <span className="btn btn-outline btn-sm">View Details <PiArrowRight /></span>
       </div>
     </Link>
   );

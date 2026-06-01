@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchJobs, matchJobsFromResume, clearMatchResults, scoreAtsFromResume, clearAtsScore } from '../features/jobs/jobSlice';
 import JobCard from '../components/JobCard';
-import { HiOutlineSearch } from 'react-icons/hi';
+import { PiMagnifyingGlass } from 'react-icons/pi';
+import AgentEvaluationPanel from '../components/AgentEvaluationPanel';
 
 function Jobs() {
   const dispatch = useDispatch();
@@ -18,6 +19,7 @@ function Jobs() {
     isScoring,
     atsScore,
     atsError,
+    atsEvaluationResult,
   } = useSelector((state) => state.jobs);
   const { user } = useSelector((state) => state.auth);
 
@@ -29,6 +31,7 @@ function Jobs() {
   const [localMatchError, setLocalMatchError] = useState('');
   const [localAtsError, setLocalAtsError] = useState('');
   const [matchRequested, setMatchRequested] = useState(false);
+  const [showAtsEvalModal, setShowAtsEvalModal] = useState(false);
 
   useEffect(() => {
     const params = { page: currentPage };
@@ -170,7 +173,19 @@ function Jobs() {
           )}
 
           {atsScore !== null && !isScoring && !atsError && (
-            <div className="ats-score">Your ATS score: {atsScore}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', marginTop: '16px' }}>
+              <div className="ats-score" style={{ margin: 0 }}>Your ATS score: {atsScore}</div>
+              {atsEvaluationResult && (
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => setShowAtsEvalModal(true)}
+                  style={{ padding: '10px 20px', fontSize: '0.95rem' }}
+                >
+                  🤖 View Detailed AI Analysis
+                </button>
+              )}
+            </div>
           )}
         </div>
 
@@ -223,7 +238,7 @@ function Jobs() {
             <option>Remote</option>
           </select>
           <button type="submit" className="btn btn-primary">
-            <HiOutlineSearch /> Search
+            <PiMagnifyingGlass /> Search
           </button>
         </form>
 
@@ -232,7 +247,7 @@ function Jobs() {
           <div className="loader"><div className="spinner"></div></div>
         ) : jobs.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-state-icon">🔍</div>
+            <div className="empty-state-icon"><PiMagnifyingGlass /></div>
             <h3>No jobs found</h3>
             <p>Try adjusting your search criteria</p>
           </div>
@@ -261,6 +276,37 @@ function Jobs() {
           </>
         )}
       </div>
+
+      {/* AI Evaluation Modal */}
+      {showAtsEvalModal && atsEvaluationResult && (
+        <div className="modal-overlay" onClick={() => setShowAtsEvalModal(false)}>
+          <div
+            className="modal slide-up"
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: '860px', width: '95vw', maxHeight: '90vh', overflowY: 'auto' }}
+          >
+            <div className="modal-header">
+              <h2>AI Resume Evaluation Details</h2>
+              <button className="modal-close" onClick={() => setShowAtsEvalModal(false)}>✕</button>
+            </div>
+            <AgentEvaluationPanel
+              evaluation={{
+                status: 'completed',
+                scores: atsEvaluationResult.evaluation?.scores || null,
+                bonusPoints: atsEvaluationResult.evaluation?.bonus_points || null,
+                deductions: atsEvaluationResult.evaluation?.deductions || null,
+                overallScore: atsEvaluationResult.score,
+                maxScore: atsEvaluationResult.maxScore || 100,
+                keyStrengths: atsEvaluationResult.evaluation?.key_strengths || [],
+                areasForImprovement: atsEvaluationResult.evaluation?.areas_for_improvement || [],
+                githubData: atsEvaluationResult.githubData || null,
+                resumeData: atsEvaluationResult.resumeData || null,
+              }}
+              candidateName={user?.name || "You"}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -3,7 +3,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { fetchJobs, createJob, updateJob, deleteJob, clearJobError } from '../features/jobs/jobSlice';
 import { fetchApplications, updateApplicationStatus, proposeInterviewSlots } from '../features/applications/applicationSlice';
-import { HiOutlinePlus, HiOutlinePencil, HiOutlineTrash, HiOutlineX, HiOutlineEye } from 'react-icons/hi';
+import { PiClipboardText, PiEnvelopeSimple, PiEye, PiPencilSimple, PiPlus, PiTrash, PiX } from 'react-icons/pi';
+import AgentEvaluationPanel from '../components/AgentEvaluationPanel';
 
 function Dashboard() {
   const dispatch = useDispatch();
@@ -18,6 +19,8 @@ function Dashboard() {
   const [scheduleApplication, setScheduleApplication] = useState(null);
   const [scheduleNote, setScheduleNote] = useState('');
   const [slotInputs, setSlotInputs] = useState([{ start: '', end: '' }]);
+  const [showEvalModal, setShowEvalModal] = useState(false);
+  const [evalApplication, setEvalApplication] = useState(null);
   const [formData, setFormData] = useState({
     title: '', company: '', location: '', type: 'Full-time',
     salary: '', description: '', requirements: '', skills: '',
@@ -138,7 +141,7 @@ function Dashboard() {
             </p>
           </div>
           <button onClick={() => { resetForm(); setShowJobForm(true); }} className="btn btn-primary">
-            <HiOutlinePlus /> Post New Job
+            <PiPlus /> Post New Job
           </button>
         </div>
 
@@ -168,7 +171,7 @@ function Dashboard() {
           <div className="loader"><div className="spinner"></div></div>
         ) : myJobs.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-state-icon">📋</div>
+            <div className="empty-state-icon"><PiClipboardText /></div>
             <h3>No jobs posted yet</h3>
             <p>Click "Post New Job" to create your first listing</p>
           </div>
@@ -196,13 +199,13 @@ function Dashboard() {
                     <td>
                       <div style={{ display: 'flex', gap: '6px' }}>
                         <button onClick={() => navigate(`/jobs/${job._id}`)} className="btn btn-icon btn-secondary" title="View">
-                          <HiOutlineEye />
+                          <PiEye />
                         </button>
                         <button onClick={() => openEditForm(job)} className="btn btn-icon btn-secondary" title="Edit">
-                          <HiOutlinePencil />
+                          <PiPencilSimple />
                         </button>
                         <button onClick={() => handleDelete(job._id)} className="btn btn-icon btn-danger" title="Delete">
-                          <HiOutlineTrash />
+                          <PiTrash />
                         </button>
                       </div>
                     </td>
@@ -217,7 +220,7 @@ function Dashboard() {
         <h2 style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: '16px' }}>Applications Received</h2>
         {applications.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-state-icon">📬</div>
+            <div className="empty-state-icon"><PiEnvelopeSimple /></div>
             <h3>No applications yet</h3>
             <p>Applications will appear here when candidates apply</p>
           </div>
@@ -232,7 +235,7 @@ function Dashboard() {
                   <th>Date</th>
                   <th>Status</th>
                   <th>Match</th>
-                  <th>ATS</th>
+                  <th>AI Analysis</th>
                   <th>Resume</th>
                   <th>Actions</th>
                 </tr>
@@ -257,7 +260,7 @@ function Dashboard() {
                       </span>
                     </td>
                     <td>
-                      {app.matchScore !== null && app.matchScore !== undefined ? `${app.matchScore}%` : '—'}
+                      {app.matchScore !== null && app.matchScore !== undefined ? `${app.matchScore}%` : '-'}
                       {app.matchedSkills?.length > 0 && (
                         <div className="status-hint">
                           {app.matchedSkills.slice(0, 3).join(', ')}
@@ -265,12 +268,25 @@ function Dashboard() {
                       )}
                     </td>
                     <td>
-                      {app.atsScore !== null && app.atsScore !== undefined ? app.atsScore : '—'}
+                      {app.agentEvaluation?.status === 'completed' ? (
+                        <button
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => { setEvalApplication(app); setShowEvalModal(true); }}
+                        >
+                          🤖 {app.agentEvaluation.overallScore != null
+                            ? `${app.agentEvaluation.overallScore.toFixed(0)} pts`
+                            : 'View AI Report'}
+                        </button>
+                      ) : app.agentEvaluation?.status === 'pending' ? (
+                        <span className="agent-status-badge agent-status-pending">⏳ Analysing…</span>
+                      ) : (
+                        <span style={{ color: 'var(--text-muted)' }}>—</span>
+                      )}
                     </td>
                     <td>
                       {(() => {
                         const resumeUrl = typeof app.resume === 'string' ? app.resume : app.resume?.url;
-                        if (!resumeUrl) return '—';
+                        if (!resumeUrl) return '-';
                         return (
                           <a className="link" href={resolveResumeUrl(resumeUrl)} target="_blank" rel="noreferrer">
                             View
@@ -315,7 +331,7 @@ function Dashboard() {
           <div className="modal slide-up" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '560px' }}>
             <div className="modal-header">
               <h2>Propose Interview Slots</h2>
-              <button className="modal-close" onClick={() => setShowScheduleModal(false)}><HiOutlineX /></button>
+              <button className="modal-close" onClick={() => setShowScheduleModal(false)}><PiX /></button>
             </div>
             <p style={{ color: 'var(--text-muted)', marginBottom: '16px' }}>
               {scheduleApplication.candidate?.name || 'Candidate'} · {scheduleApplication.job?.title || 'Role'}
@@ -339,7 +355,7 @@ function Dashboard() {
             ))}
 
             <button type="button" className="btn btn-outline btn-sm" onClick={addSlotInput} style={{ marginBottom: '16px' }}>
-              + Add another slot
+              <PiPlus /> Add another slot
             </button>
 
             <div className="form-group">
@@ -371,7 +387,7 @@ function Dashboard() {
           <div className="modal slide-up" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
             <div className="modal-header">
               <h2>{editingJob ? 'Edit Job' : 'Create New Job'}</h2>
-              <button className="modal-close" onClick={resetForm}><HiOutlineX /></button>
+              <button className="modal-close" onClick={resetForm}><PiX /></button>
             </div>
 
             <form onSubmit={handleSubmit}>
@@ -480,6 +496,26 @@ function Dashboard() {
                 <button type="button" className="btn btn-secondary" onClick={resetForm}>Cancel</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* AI Evaluation Modal */}
+      {showEvalModal && evalApplication && (
+        <div className="modal-overlay" onClick={() => setShowEvalModal(false)}>
+          <div
+            className="modal slide-up"
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: '860px', width: '95vw', maxHeight: '90vh', overflowY: 'auto' }}
+          >
+            <div className="modal-header">
+              <h2>🤖 AI Evaluation — {evalApplication.candidate?.name || 'Candidate'}</h2>
+              <button className="modal-close" onClick={() => setShowEvalModal(false)}>✕</button>
+            </div>
+            <AgentEvaluationPanel
+              evaluation={evalApplication.agentEvaluation}
+              candidateName={evalApplication.candidate?.name}
+            />
           </div>
         </div>
       )}

@@ -3,7 +3,19 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchJob } from '../features/jobs/jobSlice';
 import { applyForJob, clearApplySuccess, clearAppError } from '../features/applications/applicationSlice';
-import { HiOutlineLocationMarker, HiOutlineCurrencyDollar, HiOutlineClock, HiOutlineOfficeBuilding, HiOutlineBriefcase, HiOutlineClipboardList, HiOutlineX } from 'react-icons/hi';
+import {
+  PiArrowLeft,
+  PiArrowRight,
+  PiBriefcase,
+  PiBuildings,
+  PiCheckCircle,
+  PiClipboardText,
+  PiClock,
+  PiMapPin,
+  PiWarningCircle,
+  PiWrench,
+  PiX,
+} from 'react-icons/pi';
 
 function JobDetail() {
   const { id } = useParams();
@@ -22,25 +34,25 @@ function JobDetail() {
   }, [dispatch, id]);
 
   useEffect(() => {
-    if (applySuccess) {
-      setShowApplyModal(false);
-      setCoverLetter('');
-      setResumeFile(null);
-    }
     return () => {
       dispatch(clearApplySuccess());
       dispatch(clearAppError());
     };
-  }, [applySuccess, dispatch]);
+  }, [dispatch]);
 
-  const handleApply = (e) => {
+  const handleApply = async (e) => {
     e.preventDefault();
     const formData = new FormData();
     formData.append('coverLetter', coverLetter);
     if (resumeFile) {
       formData.append('resume', resumeFile);
     }
-    dispatch(applyForJob({ jobId: id, applicationData: formData }));
+    const result = await dispatch(applyForJob({ jobId: id, applicationData: formData }));
+    if (applyForJob.fulfilled.match(result)) {
+      setShowApplyModal(false);
+      setCoverLetter('');
+      setResumeFile(null);
+    }
   };
 
   if (isLoading || !currentJob) {
@@ -55,7 +67,7 @@ function JobDetail() {
         <div className="job-detail slide-up">
           {/* Back */}
           <button onClick={() => navigate('/jobs')} className="btn btn-secondary btn-sm" style={{ marginBottom: '24px' }}>
-            ← Back to Jobs
+            <PiArrowLeft /> Back to Jobs
           </button>
 
           {/* Header */}
@@ -70,7 +82,7 @@ function JobDetail() {
                   onClick={() => setShowApplyModal(true)}
                   className="btn btn-primary btn-lg"
                 >
-                  Apply Now →
+                  Apply Now <PiArrowRight />
                 </button>
               )}
             </div>
@@ -78,39 +90,39 @@ function JobDetail() {
             <div className="job-card-meta" style={{ marginTop: '16px' }}>
               <span className="badge badge-accent">{job.type}</span>
               <span className="job-card-meta-item">
-                <HiOutlineLocationMarker /> {job.location}
+                <PiMapPin /> {job.location}
               </span>
               <span className="job-card-meta-item">
                 ₹ {job.salary}
               </span>
               <span className="job-card-meta-item">
-                <HiOutlineClock /> Posted {new Date(job.createdAt).toLocaleDateString()}
+                <PiClock /> Posted {new Date(job.createdAt).toLocaleDateString()}
               </span>
               {job.employer && (
                 <span className="job-card-meta-item">
-                  <HiOutlineOfficeBuilding /> by {job.employer.name}
+                  <PiBuildings /> by {job.employer.name}
                 </span>
               )}
             </div>
           </div>
 
           {applySuccess && (
-            <div className="alert alert-success">✅ Application submitted successfully!</div>
+            <div className="alert alert-success"><PiCheckCircle /> Application submitted successfully!</div>
           )}
           {applyError && (
-            <div className="alert alert-error">⚠ {applyError}</div>
+            <div className="alert alert-error"><PiWarningCircle /> {applyError}</div>
           )}
 
           {/* Description */}
           <div className="job-detail-section">
-            <h2><HiOutlineBriefcase /> Job Description</h2>
+            <h2><PiBriefcase /> Job Description</h2>
             <p style={{ whiteSpace: 'pre-line' }}>{job.description}</p>
           </div>
 
           {/* Requirements */}
           {job.requirements && job.requirements.length > 0 && (
             <div className="job-detail-section">
-              <h2><HiOutlineClipboardList /> Requirements</h2>
+              <h2><PiClipboardText /> Requirements</h2>
               <ul>
                 {job.requirements.map((req, i) => (
                   <li key={i}>{req}</li>
@@ -122,7 +134,7 @@ function JobDetail() {
           {/* Skills */}
           {job.skills && job.skills.length > 0 && (
             <div className="job-detail-section">
-              <h2>🛠 Skills</h2>
+              <h2><PiWrench /> Skills</h2>
               <div className="job-card-skills" style={{ marginTop: '8px' }}>
                 {job.skills.map((skill, i) => (
                   <span key={i} className="badge badge-accent">{skill}</span>
@@ -152,7 +164,7 @@ function JobDetail() {
             <div className="modal-header">
               <h2>Apply for {job.title}</h2>
               <button className="modal-close" onClick={() => setShowApplyModal(false)}>
-                <HiOutlineX />
+                <PiX />
               </button>
             </div>
 
@@ -160,7 +172,7 @@ function JobDetail() {
               at {job.company} · {job.location}
             </p>
 
-            {applyError && <div className="alert alert-error">⚠ {applyError}</div>}
+            {applyError && <div className="alert alert-error"><PiWarningCircle /> {applyError}</div>}
 
             <form onSubmit={handleApply}>
               <div className="form-group">
