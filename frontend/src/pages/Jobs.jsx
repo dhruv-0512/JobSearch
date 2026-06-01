@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchJobs, matchJobsFromResume, clearMatchResults, scoreAtsFromResume, clearAtsScore } from '../features/jobs/jobSlice';
 import JobCard from '../components/JobCard';
@@ -33,12 +33,22 @@ function Jobs() {
   const [matchRequested, setMatchRequested] = useState(false);
   const [showAtsEvalModal, setShowAtsEvalModal] = useState(false);
 
+  const matchesRef = useRef(null);
+
   useEffect(() => {
     const params = { page: currentPage };
     if (search) params.search = search;
     if (type !== 'All') params.type = type;
     dispatch(fetchJobs(params));
   }, [dispatch, currentPage, type]);
+
+  useEffect(() => {
+    if (matchResults.length > 0 && !isMatching) {
+      setTimeout(() => {
+        matchesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [matchResults, isMatching]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -198,7 +208,7 @@ function Jobs() {
         )}
 
         {matchResults.length > 0 && (
-          <div className="match-results">
+          <div className="match-results" ref={matchesRef}>
             <div className="section-header">
               <h2>Best Matches</h2>
               <p>{matchResults.length} roles matched your resume</p>
