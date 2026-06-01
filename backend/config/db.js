@@ -15,7 +15,8 @@ const connectDB = async () => {
       const existing = await mongoose.connection.db.listCollections({ name: 'users' }).next();
       if (!existing) {
         console.log('Seeding database...');
-        require('../seed');
+        const seedData = require('../seed');
+        await seedData();
       }
     });
   }
