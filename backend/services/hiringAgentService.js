@@ -1,4 +1,3 @@
-console.log("Calling:", `${HIRING_AGENT_URL}/evaluate/full`);
 const axios = require('axios');
 const FormData = require('form-data');
 const fs = require('fs');
@@ -22,33 +21,38 @@ const evaluateResume = async (pdfPath, githubToken = null) => {
   }
 
   try {
-  console.log("Calling:", `${HIRING_AGENT_URL}/evaluate/full`);
+    const form = new FormData();
+    form.append('resume', fs.createReadStream(pdfPath), {
+      filename: path.basename(pdfPath),
+      contentType: 'application/pdf',
+    });
 
-  const response = await axios.post(`${HIRING_AGENT_URL}/evaluate/full`, form, {
-    headers: {
-      ...form.getHeaders(),
-    },
-    timeout: EVAL_TIMEOUT_MS,
-    maxContentLength: Infinity,
-    maxBodyLength: Infinity,
-  });
+    if (githubToken) {
+      form.append('github_token', githubToken);
+    }
 
-  console.log("Agent response:", response.data);
+    const response = await axios.post(`${HIRING_AGENT_URL}/evaluate/full`, form, {
+      headers: {
+        ...form.getHeaders(),
+      },
+      timeout: EVAL_TIMEOUT_MS,
+      maxContentLength: Infinity,
+      maxBodyLength: Infinity,
+    });
 
-  if (response.data?.status === 'ok') {
-    return response.data;
+    if (response.data?.status === 'ok') {
+      return response.data;
+    }
+
+    console.warn('[hiringAgent] Unexpected response structure:', response.data);
+    return null;
+  } catch (error) {
+    const detail = error?.response?.data?.detail || error.message;
+    console.error('[hiringAgent] Evaluation failed:', detail);
+    return null;
   }
+};
 
-  console.warn('[hiringAgent] Unexpected response structure:', response.data);
-  return null;
-
-} catch (error) {
-  console.error("HIRING_AGENT_URL:", HIRING_AGENT_URL);
-  console.error("Status:", error?.response?.status);
-  console.error("Response:", error?.response?.data);
-  console.error("Message:", error.message);
-  return null;
-}
 /**
  * Health-check the hiring-agent service.
  * @returns {Promise<boolean>}
