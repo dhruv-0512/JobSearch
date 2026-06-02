@@ -1,3 +1,8 @@
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/jobs', require('./routes/jobRoutes'));
+app.use('/api/applications', require('./routes/applicationRoutes'));
+app.use('/api/ats', require('./routes/atsRoutes'));
+
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -19,10 +24,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // API Routes
-app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/jobs', require('./routes/jobRoutes'));
-app.use('/api/applications', require('./routes/applicationRoutes'));
-app.use('/api/ats', require('./routes/atsRoutes'));
 
 // Serve frontend in production
 if (process.env.NODE_ENV === 'production') {
